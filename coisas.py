@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Spyder Editor
+
+Este é um arquivo de script temporário.
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Feito por Pedropva em 28/08/2018, meu aniversário :p
 """
 
@@ -175,8 +182,44 @@ def operacoes_aritmeticas_soma(img1,img2,filename):
             
     return img
 
+def separar_canais(img,filenameBlue,filenameGreen,filenameRed):
 
+    imgBlue = copy.deepcopy(img)
+    imgGreen = copy.deepcopy(img)
+    imgRed = copy.deepcopy(img)   
+    
+    imgTotal = copy.deepcopy(img)   
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+            imgRed[i,j][1] = 0
+            imgRed[i,j][0] = 0
+            
+            imgGreen[i,j][2] = 0
+            imgGreen[i,j][0] = 0
+            
+            
+            imgBlue[i,j][1] = 0
+            imgBlue[i,j][2] = 0
+            
+            imgTotal[i,j][0] = imgBlue[i,j][0] + imgRed[i,j][0] + imgGreen[i,j][0]
+            imgTotal[i,j][1] = imgBlue[i,j][1] + imgRed[i,j][1] + imgGreen[i,j][1]
+            imgTotal[i,j][2] = imgBlue[i,j][2] + imgRed[i,j][2] + imgGreen[i,j][2]
+            #print(img [i,j])
 
+    if filenameBlue != None:
+        cv2.imwrite(filenameBlue,imgBlue)
+    if filenameGreen != None:
+        cv2.imwrite(filenameGreen,imgGreen)
+    if filenameRed != None:
+        cv2.imwrite(filenameRed,imgRed) 
+    
+    cv2.imwrite("reeeTotal.jpg",imgTotal) 
+        
+        
+    return img
 
 
 
@@ -201,7 +244,7 @@ def operacoes_aritmeticas_soma(img1,img2,filename):
 if __name__ == "__main__":
     
     filename = 'reee.jpg'
-    img = cv2.imread(filename,0)
+    img = cv2.imread(filename,1)
     name, extension = os.path.splitext(filename)
     
     filename2 = 'reee-1-NOT.jpg'
@@ -225,8 +268,8 @@ if __name__ == "__main__":
     
     #aqui eu binarizo imagens , nome opcional: '{name}-binarizacao{ext}'.format(name=name,ext=extension)
     
-    #img = binarizar(img,None)
-    img2 =  binarizar(img2,None)
+    #img = binarizar(img,'pei.jpg')
+    #img2 =  binarizar(img2,None)
     
     
     
@@ -241,7 +284,9 @@ if __name__ == "__main__":
     #XOR
     #operacoes_logicas_xor(copy.deepcopy(img),copy.deepcopy(img2),'{name}-XOR-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
     #SOMA
-    operacoes_aritmeticas_soma(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SOMA-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
+    #operacoes_aritmeticas_soma(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SOMA-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
+    #canais
+    separar_canais(copy.deepcopy(img),'{name}-Blue{ext}'.format(name=name,ext=extension),'{name}-Green{ext}'.format(name=name,ext=extension),'{name}-Red{ext}'.format(name=name,ext=extension))
     
     
     
@@ -313,7 +358,4 @@ if __name__ == "__main__":
     
     
     
-    
-    
-    
-    
+   
