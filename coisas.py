@@ -1,18 +1,12 @@
 # -*- coding: utf-8 -*-
 """
-Spyder Editor
-
-Este é um arquivo de script temporário.
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Feito por Pedropva em 28/08/2018, meu aniversário :p
 """
 
 import numpy as np
 import cv2
 import os,math, copy
+import utils
 
 
 true = 255
@@ -161,7 +155,7 @@ def operacoes_logicas_not(img,filename):
             
     return img
 
-
+#soma os pixels de duas imagens de mesmo tamanho
 def operacoes_aritmeticas_soma(img1,img2,filename):
     img = np.float32(img1)
     
@@ -174,15 +168,241 @@ def operacoes_aritmeticas_soma(img1,img2,filename):
     
     for i in range(rows):
         for j in range(cols):
-            img[i,j] = img[i,j] + img2[i,j];
-            if img[i,j] > 255: img[i,j] = 255;
+            if img[i,j] + img2[i,j] > 255: 
+                img[i,j] = 255;
+            else:
+                img[i,j] = img[i,j] + img2[i,j];
                 
     if filename != None:    
         cv2.imwrite(filename,img)
             
     return img
 
-def separar_canais(img,filenameBlue,filenameGreen,filenameRed):
+#subtrai os pixels de duas imagens de mesmo tamanho
+def operacoes_aritmeticas_subtracao(img1,img2,filename):
+    img = np.float32(img1)
+    
+    if img1.shape[0] > img2 .shape[0]:
+        rows = img1.shape[0]
+        cols = img1.shape[1]
+    else:
+        rows = img2.shape[0]
+        cols = img2.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+        
+            if img[i,j] - img2[i,j] < 0: 
+                img[i,j] = 0;
+            else:
+                img[i,j] = img[i,j] - img2[i,j];
+                
+    if filename != None:    
+        cv2.imwrite(filename,img)
+            
+    return img
+
+#multiplica os pixels de duas imagens de mesmo tamanho
+def operacoes_aritmeticas_multiplicacao(img1,img2,filename):
+    img = np.float32(img1)
+    
+    if img1.shape[0] > img2 .shape[0]:
+        rows = img1.shape[0]
+        cols = img1.shape[1]
+    else:
+        rows = img2.shape[0]
+        cols = img2.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+        
+            if img[i,j] * img2[i,j] > 255: 
+                img[i,j] = 255;
+            else:
+                if img[i,j] * img2[i,j] < 0:
+                    img[i,j] = 0;
+                else:
+                    img[i,j] = img[i,j] * img2[i,j];
+                
+    if filename != None:    
+        cv2.imwrite(filename,img)
+            
+    return img
+
+#divide os pixels de duas imagens de mesmo tamanho
+def operacoes_aritmeticas_divisao(img1,img2,filename):
+    img = np.float32(img1)
+    
+    if img1.shape[0] > img2 .shape[0]:
+        rows = img1.shape[0]
+        cols = img1.shape[1]
+    else:
+        rows = img2.shape[0]
+        cols = img2.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+            if img2[i,j] != 0:
+                if img[i,j] / img2[i,j] > 255: 
+                    img[i,j] = 255;
+                else:
+                    if img[i,j] / img2[i,j] < 0:
+                        img[i,j] = 0;
+                    else:
+                        img[i,j] = img[i,j] / img2[i,j];
+                
+    if filename != None:    
+        cv2.imwrite(filename,img)
+            
+    return img
+
+
+#distancia euclidiana entre dois pontos
+def distancia_euclidiana(ponto1,ponto2):    
+    return math.sqrt(math.pow(2,ponto1[0] - ponto2[0]) + math.pow(2,ponto1[1] - ponto2[1]))
+
+
+#mistura duas imagens com img1 sendo a primeira imagem, img2 a segunda, peso1 o peso da imagem um na mistura, peso2 opeso da segunda imagem na mistura e alfa sendo um coeficiente somado a mais
+def mistura(img1,img2,peso1,peso2,alfa,filename):
+    img = np.float32(img1)
+    
+    if img1.shape[0] > img2 .shape[0]:
+        rows = img1.shape[0]
+        cols = img1.shape[1]
+    else:
+        rows = img2.shape[0]
+        cols = img2.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+            img[i,j] = (img1[i,j]*peso1 + img2[i,j]*peso2)+alfa/(peso1+peso2)
+                
+    if filename != None:    
+        cv2.imwrite(filename,img)
+            
+    return img
+
+#translada uma imagem em tx e ty em pixels.
+def transladar(img1,tx,ty,filename):
+    img = copy.deepcopy(np.float32(img1))
+
+    rows = img.shape[0]
+    cols = img.shape[1]
+    for i in range(rows):
+        for j in range(cols):
+            img[i,j] = 0
+        
+    #aumentando a imagem resultado        
+    img = np.concatenate((img,img), axis=0)#dobra a altura 
+    img = np.concatenate((img,img), axis=1)#dobra a largura
+    img = np.concatenate((img,img), axis=-1)#dobra a largura
+    img = np.concatenate((img,img), axis=0)#dobra a altura 
+    #resultado final é uma imagem 4*4 vezes maior
+    
+    #não se engane esse for corre na imagem original
+    for i in range(0,rows):
+        for j in range(0,cols):
+            mat =  [[1, 0,tx],[0, 1,ty],[0, 0, 1]]
+            p0 = [] 
+            p0.append([i])
+            p0.append([j])
+            p0.append([1])
+            
+            p0 = utils.multMatriz(mat,p0)
+            #calculada a nova posicao eu coloco a cor no novo lugar
+            
+            
+            #Pego as novas coordenadas e boto elas no centro da nova imagem
+            img[p0[0][0]+round(1.5*rows),p0[1][0]+round(1.5*rows)] = img1[i,j]
+            
+    if filename != None:    
+        cv2.imwrite(filename,img)
+            
+    return img
+
+#rotaciona uma imagem em volta de um pixel(px,py) com o angulo a em radianos.
+def rotacionar(img1,px,py,a,filename):
+    img = copy.deepcopy(np.float32(img1))
+
+    rows = img.shape[0]
+    cols = img.shape[1]
+    for i in range(rows):
+        for j in range(cols):
+            img[i,j] = 0
+        
+    #aumentando a imagem resultado        
+    img = np.concatenate((img,img), axis=0)#dobra a altura 
+    img = np.concatenate((img,img), axis=1)#dobra a largura
+    img = np.concatenate((img,img), axis=-1)#dobra a largura
+    img = np.concatenate((img,img), axis=0)#dobra a altura 
+    #resultado final é uma imagem 4*4 vezes maior
+    
+    #não se engane esse for corre na imagem original
+    for i in range(0,rows):
+        for j in range(0,cols):
+            matIda =  [[1, 0,-px],[0, 1,-py],[0, 0, 1]]
+            mat =  [[math.cos(a), -math.sin(a), 0],[math.sin(a), math.cos(a), 0],[0,0,1]]	
+            matVolta =  [[1, 0,px],[0, 1,py],[0, 0, 1]]
+            p0 = [] 
+            p0.append([i])
+            p0.append([j])
+            p0.append([1])
+            p0 = utils.multMatriz(matIda,p0)#move todos os pixels pro centro em relacao ao pixel dado
+            p0 = utils.multMatriz(mat,p0)#rotaciona
+            p0 = utils.multMatriz(matVolta,p0)#volta todos os pixels pro lugar
+            #calculada a nova posicao eu coloco a cor no novo lugar
+            
+            
+            #Pego as novas coordenadas e boto elas no centro da nova imagem
+            img[round(p0[0][0])+round(1.5*rows),round(p0[1][0])+round(1.5*rows)] = img1[i,j]
+            
+    if filename != None:    
+        cv2.imwrite(filename,img)
+            
+    return img
+
+#escala uma imagem com tx e ty as taxas de escala em x e y respectivamente.(a partir de 1.alguma coisa, 1 e 1 pra mesma escala)
+def escalar(img1,tx,ty,filename):
+    img = copy.deepcopy(np.float32(img1))
+
+    rows = img.shape[0]
+    cols = img.shape[1]
+    for i in range(rows):
+        for j in range(cols):
+            img[i,j] = 0
+        
+    #aumentando a imagem resultado        
+    img = np.concatenate((img,img), axis=0)#dobra a altura 
+    img = np.concatenate((img,img), axis=1)#dobra a largura
+    img = np.concatenate((img,img), axis=-1)#dobra a largura
+    img = np.concatenate((img,img), axis=0)#dobra a altura 
+    #resultado final é uma imagem 4*4 vezes maior
+    
+    #não se engane esse for corre na imagem original
+    for i in range(0,rows):
+        for j in range(0,cols):
+            
+            mat = [[tx,0,0],[0,ty,0],[0,0,1]]
+            
+            p0 = [] 
+            p0.append([i])
+            p0.append([j])
+            p0.append([1])
+            
+            p0 = utils.multMatriz(mat,p0)
+            
+            #calculada a nova posicao eu coloco a cor no novo lugar
+            
+            
+            #Pego as novas coordenadas e boto elas no centro da nova imagem
+            img[round(p0[0][0])+round(1.5*rows),round(p0[1][0])+round(1.5*rows)] = img1[i,j]
+            
+    if filename != None:    
+        cv2.imwrite(filename,img)
+            
+    return img
+
+    def separar_canais(img,filenameBlue,filenameGreen,filenameRed):
 
     imgBlue = copy.deepcopy(img)
     imgGreen = copy.deepcopy(img)
@@ -216,7 +436,7 @@ def separar_canais(img,filenameBlue,filenameGreen,filenameRed):
     if filenameRed != None:
         cv2.imwrite(filenameRed,imgRed) 
     
-    cv2.imwrite("reeeTotal.jpg",imgTotal) 
+    #cv2.imwrite("reeeTotal.jpg",imgTotal) 
         
         
     return img
@@ -231,20 +451,10 @@ def separar_canais(img,filenameBlue,filenameGreen,filenameRed):
 
 
 
-
-
-
-
-
-
-
-
-
-
 if __name__ == "__main__":
     
     filename = 'reee.jpg'
-    img = cv2.imread(filename,1)
+    img = cv2.imread(filename,0)
     name, extension = os.path.splitext(filename)
     
     filename2 = 'reee-1-NOT.jpg'
@@ -268,8 +478,8 @@ if __name__ == "__main__":
     
     #aqui eu binarizo imagens , nome opcional: '{name}-binarizacao{ext}'.format(name=name,ext=extension)
     
-    #img = binarizar(img,'pei.jpg')
-    #img2 =  binarizar(img2,None)
+    #img = binarizar(img,None)
+    img2 =  binarizar(img2,None)
     
     
     
@@ -285,8 +495,16 @@ if __name__ == "__main__":
     #operacoes_logicas_xor(copy.deepcopy(img),copy.deepcopy(img2),'{name}-XOR-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
     #SOMA
     #operacoes_aritmeticas_soma(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SOMA-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
-    #canais
-    separar_canais(copy.deepcopy(img),'{name}-Blue{ext}'.format(name=name,ext=extension),'{name}-Green{ext}'.format(name=name,ext=extension),'{name}-Red{ext}'.format(name=name,ext=extension))
+    #operacoes_aritmeticas_subtracao(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SUB-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
+    #operacoes_aritmeticas_multiplicacao(copy.deepcopy(img),copy.deepcopy(img2),'{name}-MULT-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
+    #operacoes_aritmeticas_divisao(copy.deepcopy(img),copy.deepcopy(img2),'{name}-DIV-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
+    #mistura(copy.deepcopy(img),copy.deepcopy(img2),0.8,0.2,0,'{name}-MIST-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
+    #distancia_euclidiana([0,0],[1,1])
+    #transladar(copy.deepcopy(img),250,250,'{name}-TRANSLADAR{ext}'.format(name=name,ext=extension))
+    #rotacionar(copy.deepcopy(img),0,0,3.14,'{name}-ROTACIONAR{ext}'.format(name=name,ext=extension))
+    #escalar(copy.deepcopy(img),-1,1.5,'{name}-ESCALAR{ext}'.format(name=name,ext=extension))
+    #canais de cores
+    #separar_canais(copy.deepcopy(img),'{name}-Blue{ext}'.format(name=name,ext=extension),'{name}-Green{ext}'.format(name=name,ext=extension),'{name}-Red{ext}'.format(name=name,ext=extension))
     
     
     
@@ -357,5 +575,3 @@ if __name__ == "__main__":
     
     
     
-    
-   
