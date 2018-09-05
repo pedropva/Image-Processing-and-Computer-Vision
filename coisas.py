@@ -67,11 +67,14 @@ def binarizar(img,filename):
 def operacoes_logicas_and(img1,img2,filename): 
     img = np.float32(img1)
     
-    if img1.shape[0] > img2 .shape[0]:
+    if img1.shape[0] < img2 .shape[0]:
         rows = img1.shape[0]
-        cols = img1.shape[1]
     else:
         rows = img2.shape[0]
+    
+    if img1.shape[1] < img2 .shape[1]:
+        cols = img1.shape[1]
+    else:
         cols = img2.shape[1]
     
     
@@ -91,11 +94,14 @@ def operacoes_logicas_and(img1,img2,filename):
 def operacoes_logicas_or(img1,img2,filename): 
     img = np.float32(img1)
     
-    if img1.shape[0] > img2 .shape[0]:
+    if img1.shape[0] < img2 .shape[0]:
         rows = img1.shape[0]
-        cols = img1.shape[1]
     else:
         rows = img2.shape[0]
+    
+    if img1.shape[1] < img2 .shape[1]:
+        cols = img1.shape[1]
+    else:
         cols = img2.shape[1]
     
     
@@ -115,11 +121,14 @@ def operacoes_logicas_or(img1,img2,filename):
 def operacoes_logicas_xor(img1,img2,filename): 
     img = np.float32(img1)
     
-    if img1.shape[0] > img2 .shape[0]:
+    if img1.shape[0] < img2 .shape[0]:
         rows = img1.shape[0]
-        cols = img1.shape[1]
     else:
         rows = img2.shape[0]
+    
+    if img1.shape[1] < img2 .shape[1]:
+        cols = img1.shape[1]
+    else:
         cols = img2.shape[1]
     
     
@@ -159,11 +168,14 @@ def operacoes_logicas_not(img,filename):
 def operacoes_aritmeticas_soma(img1,img2,filename):
     img = np.float32(img1)
     
-    if img1.shape[0] > img2 .shape[0]:
+    if img1.shape[0] < img2 .shape[0]:
         rows = img1.shape[0]
-        cols = img1.shape[1]
     else:
         rows = img2.shape[0]
+    
+    if img1.shape[1] < img2 .shape[1]:
+        cols = img1.shape[1]
+    else:
         cols = img2.shape[1]
     
     for i in range(rows):
@@ -182,11 +194,14 @@ def operacoes_aritmeticas_soma(img1,img2,filename):
 def operacoes_aritmeticas_subtracao(img1,img2,filename):
     img = np.float32(img1)
     
-    if img1.shape[0] > img2 .shape[0]:
+    if img1.shape[0] < img2 .shape[0]:
         rows = img1.shape[0]
-        cols = img1.shape[1]
     else:
         rows = img2.shape[0]
+    
+    if img1.shape[1] < img2 .shape[1]:
+        cols = img1.shape[1]
+    else:
         cols = img2.shape[1]
     
     for i in range(rows):
@@ -206,11 +221,14 @@ def operacoes_aritmeticas_subtracao(img1,img2,filename):
 def operacoes_aritmeticas_multiplicacao(img1,img2,filename):
     img = np.float32(img1)
     
-    if img1.shape[0] > img2 .shape[0]:
+    if img1.shape[0] < img2 .shape[0]:
         rows = img1.shape[0]
-        cols = img1.shape[1]
     else:
         rows = img2.shape[0]
+    
+    if img1.shape[1] < img2 .shape[1]:
+        cols = img1.shape[1]
+    else:
         cols = img2.shape[1]
     
     for i in range(rows):
@@ -233,11 +251,14 @@ def operacoes_aritmeticas_multiplicacao(img1,img2,filename):
 def operacoes_aritmeticas_divisao(img1,img2,filename):
     img = np.float32(img1)
     
-    if img1.shape[0] > img2 .shape[0]:
+    if img1.shape[0] < img2 .shape[0]:
         rows = img1.shape[0]
-        cols = img1.shape[1]
     else:
         rows = img2.shape[0]
+    
+    if img1.shape[1] < img2 .shape[1]:
+        cols = img1.shape[1]
+    else:
         cols = img2.shape[1]
     
     for i in range(rows):
@@ -402,8 +423,7 @@ def escalar(img1,tx,ty,filename):
             
     return img
 
-    def separar_canais(img,filenameBlue,filenameGreen,filenameRed):
-
+def separar_canais(img,filenameBlue,filenameGreen,filenameRed):
     imgBlue = copy.deepcopy(img)
     imgGreen = copy.deepcopy(img)
     imgRed = copy.deepcopy(img)   
@@ -441,6 +461,59 @@ def escalar(img1,tx,ty,filename):
         
     return img
 
+#B.G.R. TO C.M.Y. recebe uma imagem em bgr e retorna uma imagem em cmy
+    
+def bgrToCmy(img1,filename):
+
+    img = copy.deepcopy(img1)
+     
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+            img[i,j][0] = 255 - img1[i,j][0]
+            img[i,j][1] = 255 - img1[i,j][1]
+            img[i,j][2] = 255 - img1[i,j][2]
+
+    if filename != None:
+        cv2.imwrite(filename,img) 
+    
+    #cv2.imwrite("reeeTotal.jpg",imgTotal) 
+        
+        
+    return img
+
+#soma colorida    
+def soma_colorida(img1,img2,filename):
+
+    img = copy.deepcopy(np.float32(img1))
+    
+    if img1.shape[0] < img2 .shape[0]:
+        rows = img1.shape[0]
+    else:
+        rows = img2.shape[0]
+    
+    if img1.shape[1] < img2 .shape[1]:
+        cols = img1.shape[1]
+    else:
+        cols = img2.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+    
+            img[i,j][0] = ((img[i,j][0] + img2[i,j][0]))/2
+            img[i,j][1] = ((img[i,j][1] + img2[i,j][1]))/2
+            img[i,j][2] = ((img[i,j][2] + img2[i,j][2]))/2
+        
+                
+    if filename != None:
+        cv2.imwrite(filename,img) 
+    
+    #cv2.imwrite("reeeTotal.jpg",imgTotal) 
+        
+        
+    return img
 
 
 
@@ -453,12 +526,12 @@ def escalar(img1,tx,ty,filename):
 
 if __name__ == "__main__":
     
-    filename = 'reee.jpg'
-    img = cv2.imread(filename,0)
+    filename = 'rgb.jpg'
+    img = cv2.imread(filename,1)
     name, extension = os.path.splitext(filename)
     
-    filename2 = 'reee-1-NOT.jpg'
-    img2 = cv2.imread(filename2,0)
+    filename2 = 'reee.jpg'
+    img2 = cv2.imread(filename2,1)
     name2, extension2 = os.path.splitext(filename2)
     
     #aqui eu faço amostragem de 2 e 4 e salvo as duas imagens
@@ -479,7 +552,7 @@ if __name__ == "__main__":
     #aqui eu binarizo imagens , nome opcional: '{name}-binarizacao{ext}'.format(name=name,ext=extension)
     
     #img = binarizar(img,None)
-    img2 =  binarizar(img2,None)
+    #img2 =  binarizar(img2,None)
     
     
     
@@ -505,8 +578,9 @@ if __name__ == "__main__":
     #escalar(copy.deepcopy(img),-1,1.5,'{name}-ESCALAR{ext}'.format(name=name,ext=extension))
     #canais de cores
     #separar_canais(copy.deepcopy(img),'{name}-Blue{ext}'.format(name=name,ext=extension),'{name}-Green{ext}'.format(name=name,ext=extension),'{name}-Red{ext}'.format(name=name,ext=extension))
-    
-    
+    #bgr to cmy
+    #bgrToCmy(copy.deepcopy(img),'{name}-CMY{ext}'.format(name=name,ext=extension))
+    soma_colorida(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SOMA-COLORIDA-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
     
     
     
