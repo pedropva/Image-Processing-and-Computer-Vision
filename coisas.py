@@ -334,7 +334,7 @@ def transladar(img1,tx,ty,filename):
             
             
             #Pego as novas coordenadas e boto elas no centro da nova imagem
-            img[p0[0][0]+round(1.5*rows),p0[1][0]+round(1.5*rows)] = img1[i,j]
+            img[p0[0][0]+round(1.5*rows),p0[1][0]+round(1.5*cols)] = img1[i,j]
             
     if filename != None:    
         cv2.imwrite(filename,img)
@@ -375,7 +375,7 @@ def rotacionar(img1,px,py,a,filename):
             
             
             #Pego as novas coordenadas e boto elas no centro da nova imagem
-            img[round(p0[0][0])+round(1.5*rows),round(p0[1][0])+round(1.5*rows)] = img1[i,j]
+            img[round(p0[0][0])+round(1.5*rows),round(p0[1][0])+round(1.5*cols)] = img1[i,j]
             
     if filename != None:    
         cv2.imwrite(filename,img)
@@ -416,7 +416,7 @@ def escalar(img1,tx,ty,filename):
             
             
             #Pego as novas coordenadas e boto elas no centro da nova imagem
-            img[round(p0[0][0])+round(1.5*rows),round(p0[1][0])+round(1.5*rows)] = img1[i,j]
+            img[round(p0[0][0])+round(1.5*rows),round(p0[1][0])+round(1.5*cols)] = img1[i,j]
             
     if filename != None:    
         cv2.imwrite(filename,img)
@@ -518,20 +518,14 @@ def soma_colorida(img1,img2,filename):
 
 
 
-
-
-
-
-
-
 if __name__ == "__main__":
     
-    filename = 'rgb.jpg'
-    img = cv2.imread(filename,1)
+    filename = 'card.jpeg'
+    img = cv2.imread(filename,0)
     name, extension = os.path.splitext(filename)
     
     filename2 = 'reee.jpg'
-    img2 = cv2.imread(filename2,1)
+    img2 = cv2.imread(filename2,0)
     name2, extension2 = os.path.splitext(filename2)
     
     #aqui eu faço amostragem de 2 e 4 e salvo as duas imagens
@@ -574,13 +568,13 @@ if __name__ == "__main__":
     #mistura(copy.deepcopy(img),copy.deepcopy(img2),0.8,0.2,0,'{name}-MIST-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
     #distancia_euclidiana([0,0],[1,1])
     #transladar(copy.deepcopy(img),250,250,'{name}-TRANSLADAR{ext}'.format(name=name,ext=extension))
-    #rotacionar(copy.deepcopy(img),0,0,3.14,'{name}-ROTACIONAR{ext}'.format(name=name,ext=extension))
+    rotacionar(copy.deepcopy(img),0,0,3.14,'{name}-ROTACIONAR{ext}'.format(name=name,ext=extension))
     #escalar(copy.deepcopy(img),-1,1.5,'{name}-ESCALAR{ext}'.format(name=name,ext=extension))
     #canais de cores
     #separar_canais(copy.deepcopy(img),'{name}-Blue{ext}'.format(name=name,ext=extension),'{name}-Green{ext}'.format(name=name,ext=extension),'{name}-Red{ext}'.format(name=name,ext=extension))
     #bgr to cmy
     #bgrToCmy(copy.deepcopy(img),'{name}-CMY{ext}'.format(name=name,ext=extension))
-    soma_colorida(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SOMA-COLORIDA-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
+    #soma_colorida(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SOMA-COLORIDA-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
     
     
     
