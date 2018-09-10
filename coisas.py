@@ -484,6 +484,108 @@ def bgrToCmy(img1,filename):
         
     return img
 
+#B.G.R. TO Y.U.V. recebe uma imagem em bgr e retorna uma imagem em yuv
+    
+def bgrToYuv(img1,filename):
+
+    img = copy.deepcopy(img1)
+     
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+            img[i,j][0] = 0.299*img1[i,j][2] + 0.587*img1[i,j][1] + 0.144*img1[i,j][0]     #Y =  0.299*R + 0.587*G + 0.144*B
+            img[i,j][1] = img1[i,j][0] - img[i,j][0]    #U = B- Y
+            img[i,j][2] = img1[i,j][2] - img[i,j][0]    #V = R - Y
+
+    if filename != None:
+        cv2.imwrite(filename,img) 
+    
+    #cv2.imwrite("reeeTotal.jpg",imgTotal) 
+        
+        
+    return img
+
+#B.G.R. TO Y.Cr.Cb. recebe uma imagem em bgr e retorna uma imagem em ycrcb
+#delta é 128 pra imagens 8bits,32568 pra 16 bits e 0.5 pra floats
+def bgrToYCrCb(img1,delta,filename):
+
+    img = copy.deepcopy(img1)
+     
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+            img[i,j][0] = 0.299*img1[i,j][2] + 0.587*img1[i,j][1] + 0.114*img1[i,j][0]    #Y = 0.299*R + 0.587*G + 0.114*B
+            img[i,j][1] = (img1[i,j][2] - img[i,j][0])* 0.713 + delta    #Cr = (R - Y)* 0.713 + delta 
+            img[i,j][2] = (img1[i,j][0] - img[i,j][0])* 0.564 + delta    #Cb = (B - Y)* 0.564 + delta
+
+    if filename != None:
+        cv2.imwrite(filename,img) 
+        
+        
+    return img
+
+
+
+#B.G.R. TO Y.I.Q. recebe uma imagem em bgr e retorna uma imagem em yiq
+def bgrToYiQ(img1,filename):
+
+    img = copy.deepcopy(img1)
+     
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+            
+            mat = [[0.299,0.587,0.144],[0.596,-0.275,-0.321],[0.212,-0.523,0.311]]
+            
+            p0 = [] 
+            p0.append([img1[i,j][2]])
+            p0.append([img1[i,j][1]])
+            p0.append([img1[i,j][0]])
+            
+            p0 = utils.multMatriz(mat,p0)
+            
+            #calculada a nova posicao eu coloco a cor no novo lugar
+            
+            
+            #Pego as novas coordenadas e boto elas no centro da nova imagem
+            img[i,j][0] = p0[0] #Y
+            img[i,j][1] = p0[1] #I
+            img[i,j][2] = p0[2] #Q
+
+    if filename != None:
+        cv2.imwrite(filename,img) 
+           
+    return img
+
+
+#B.G.R. TO R.G.B. recebe uma imagem em bgr e retorna uma imagem em rgb
+def bgrTorgb(img1,filename):
+
+    img = copy.deepcopy(img1)
+     
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+            img[i,j][0] = img1[i,j][2] #R
+            img[i,j][1] = img1[i,j][1] #G
+            img[i,j][2] = img1[i,j][0] #B
+
+    if filename != None:
+        cv2.imwrite(filename,img) 
+           
+    return img
+
+
+
+
 #soma colorida    
 def soma_colorida(img1,img2,filename):
 
@@ -518,9 +620,24 @@ def soma_colorida(img1,img2,filename):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
     
-    filename = 'card.jpeg'
+    filename = 'planta.jpeg'
     img = cv2.imread(filename,0)
     name, extension = os.path.splitext(filename)
     
@@ -568,14 +685,16 @@ if __name__ == "__main__":
     #mistura(copy.deepcopy(img),copy.deepcopy(img2),0.8,0.2,0,'{name}-MIST-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
     #distancia_euclidiana([0,0],[1,1])
     #transladar(copy.deepcopy(img),250,250,'{name}-TRANSLADAR{ext}'.format(name=name,ext=extension))
-    rotacionar(copy.deepcopy(img),0,0,3.14,'{name}-ROTACIONAR{ext}'.format(name=name,ext=extension))
+    #rotacionar(copy.deepcopy(img),0,0,3.14,'{name}-ROTACIONAR{ext}'.format(name=name,ext=extension))
     #escalar(copy.deepcopy(img),-1,1.5,'{name}-ESCALAR{ext}'.format(name=name,ext=extension))
     #canais de cores
     #separar_canais(copy.deepcopy(img),'{name}-Blue{ext}'.format(name=name,ext=extension),'{name}-Green{ext}'.format(name=name,ext=extension),'{name}-Red{ext}'.format(name=name,ext=extension))
     #bgr to cmy
     #bgrToCmy(copy.deepcopy(img),'{name}-CMY{ext}'.format(name=name,ext=extension))
     #soma_colorida(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SOMA-COLORIDA-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
-    
+    #cv2.imshow('Rotation',newImg)
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
     
     
     
