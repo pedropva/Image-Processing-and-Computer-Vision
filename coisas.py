@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 import os,math, copy
 import utils
-
+import random
 
 true = 255
 false = 0
@@ -618,12 +618,116 @@ def soma_colorida(img1,img2,filename):
     return img
 
 
+#dithering, recebe uma imagem em escala de cinza e retorna uma em preto e branco com baixa qualidade
+def basicDithering(img,filename):
+    img = np.float32(img)
+    
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+            if img[i,j] > 127:
+                img[i,j] = true;    
+            else:
+                img[i,j] = false;
+    
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
+    
 
+#dithering, recebe uma imagem em escala de cinza e retorna uma em preto e branco com baixa qualidade e com pixels randomizados
+def randomDithering(img,filename):
+    img = np.float32(img)
+    
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+            if img[i,j] + random.randint(-127,127) > 127:
+                img[i,j] = true;    
+            else:
+                img[i,j] = false;
+    
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
 
+#dithering, recebe uma imagem em escala de cinza e retorna uma em preto e branco baseado em Algoritmo Ordenado Periodico com pixels Aglomerados
+def AOPADithering(img,filename):
+    img = np.float32(img)
+    ditheringMatrix = [[8,3,4],[6,1,2],[7,5,9]]
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+            temp1 = (img[i,j]* 1.0)/true
+            temp2 = (ditheringMatrix[i%3][j%3]* 1.0)/10
+            if temp1 > temp2 :
+                img[i,j] = true;
+            else:
+                img[i,j] = false;
+    
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
 
+#dithering, recebe uma imagem em escala de cinza e retorna uma em preto e branco baseado em Algoritmo Ordenado Periodico com pixels Dispersos
+def AOPDDithering(img,filename):
+    img = np.float32(img)
+    ditheringMatrix = [[2,3],[3,1]]
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+            temp1 = (img[i,j]* 1.0)/true
+            temp2 = (ditheringMatrix[i%2][j%2]* 1.0)/5
+            if temp1 > temp2 :
+                img[i,j] = true;
+            else:
+                img[i,j] = false;
+    
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
 
-
-
+#dithering, recebe uma imagem em escala de cinza e retorna uma em preto e branco baseado em Algoritmo aperiódico (Floyd-Steinberg).
+def AAPDithering(img,filename):
+    img = np.float32(img)
+    
+    rows = img.shape[0]
+    cols = img.shape[1]
+    copy = 0;
+    for i in range(rows):
+        for j in range(cols):
+            copy = img[i,j]
+            if img[i,j] > 127:
+                img[i,j] = true;    
+            else:
+                img[i,j] = false;
+            
+            
+            erro = img[i,j] - copy
+            if(i+1 < rows):
+                img[i+1,j] = img[i+1,j] + erro * 7.0/16 
+            if(i+1 < rows and j+1 < cols):
+                img[i+1,j+1] = img[i+1,j+1] + erro * 1.0/16 
+            if(j+1 < cols):
+                img[i,j+1] = img[i,j+1] + erro * 5.0/16    
+            if(i-1 > 0 and j+1 < cols):
+                img[i-1,j+1] = img[i-1,j+1] + erro * 3.0/16
+            
+    if filename != None:
+        cv2.imwrite(filename,img)
+    return img
 
 
 
@@ -637,7 +741,7 @@ def soma_colorida(img1,img2,filename):
 
 if __name__ == "__main__":
     
-    filename = 'planta.jpeg'
+    filename = 'reee.jpg'
     img = cv2.imread(filename,0)
     name, extension = os.path.splitext(filename)
     
@@ -667,17 +771,13 @@ if __name__ == "__main__":
     
     
     
-    #aqui eu faço as operações lógicas#
+    #aqui eu faço as operações#
     
-    #NOT
+    
     #operacoes_logicas_not(copy.deepcopy(img),'{name}-NOT{ext}'.format(name=name,ext=extension))
-    #AND
     #operacoes_logicas_and(copy.deepcopy(img),copy.deepcopy(img2),'{name}-AND-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
-    #OR
-    #operacoes_logicas_or(copy.deepcopy(img),copy.deepcopy(img2),'{name}-OR-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
-    #XOR
+    #operacoes_logicas_or(copy.deepcopy(img),copy.deepcopy(img2),'{name}-OR-{name2}{ext}'.format(name=name,name2=name2,ext=extension))    
     #operacoes_logicas_xor(copy.deepcopy(img),copy.deepcopy(img2),'{name}-XOR-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
-    #SOMA
     #operacoes_aritmeticas_soma(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SOMA-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
     #operacoes_aritmeticas_subtracao(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SUB-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
     #operacoes_aritmeticas_multiplicacao(copy.deepcopy(img),copy.deepcopy(img2),'{name}-MULT-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
@@ -692,12 +792,11 @@ if __name__ == "__main__":
     #bgr to cmy
     #bgrToCmy(copy.deepcopy(img),'{name}-CMY{ext}'.format(name=name,ext=extension))
     #soma_colorida(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SOMA-COLORIDA-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
-    #cv2.imshow('Rotation',newImg)
-    #cv2.waitKey(0)
-    #cv2.destroyAllWindows()
-    
-    
-    
+    #basicDithering(copy.deepcopy(img),'{name}-basicDith{ext}'.format(name=name,ext=extension))
+    #randomDithering(copy.deepcopy(img),'{name}-randomDith{ext}'.format(name=name,ext=extension))
+    #AOPDDithering(copy.deepcopy(img),'{name}-AOPDDith{ext}'.format(name=name,ext=extension))
+    #AOPADithering(copy.deepcopy(img),'{name}-AOPADith{ext}'.format(name=name,ext=extension))
+    AAPDithering(copy.deepcopy(img),'{name}-AAPADith{ext}'.format(name=name,ext=extension))
     
     
     
