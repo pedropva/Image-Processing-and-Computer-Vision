@@ -715,7 +715,7 @@ def AAPDithering(img,filename):
                 img[i,j] = false;
             
             
-            erro = img[i,j] - copy
+            erro = copy  -  img[i,j]  
             if(i+1 < rows):
                 img[i+1,j] = img[i+1,j] + erro * 7.0/16 
             if(i+1 < rows and j+1 < cols):
@@ -741,7 +741,7 @@ def AAPDithering(img,filename):
 
 if __name__ == "__main__":
     
-    filename = 'reee.jpg'
+    filename = 'lenna.jpg'
     img = cv2.imread(filename,0)
     name, extension = os.path.splitext(filename)
     
