@@ -773,6 +773,28 @@ def filtro_gaussiano(img,filename):
         
     return img
 
+#filtro da mediana, recebe uma imagem e retorna uma imagem de mesmo tamanho com a filtragem gaussiana (passabaixa/desfoque)
+def filtro_mediana(img,filename):
+    rows = img.shape[0]
+    cols = img.shape[1]
+    beirada = 3//2 #3 eh o numero delinhas da matriz
+    i = beirada
+    j = beirada
+    
+    for i in range(rows-beirada):
+        for j in range(cols-beirada):
+            vizinhos = [] #variavel que guarda a lista dos pixels da janela equivalente na imagem
+            for k in range(3):
+                for l in range(3):
+                    vizinhos.append(img[i-beirada + k,j-beirada + l]) #multiplico os valores do kernel pela janela equivalente dos pixels                    
+            #print(vizinhos)
+            #print(np.median(vizinhos))
+            img[i,j] = np.median(vizinhos) # atribui a mediana desses pixels ao pixel
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
+
 
 
 #filtro negativo recebe umas imagem e retorna ela negativada
@@ -893,6 +915,7 @@ if __name__ == "__main__":
     #img1 = filtro_gama(copy.deepcopy(img),1,0.2,'{name}-Gama{ext}'.format(name=name,ext=extension))
     #img1 = filtro_media(copy.deepcopy(img),7,'{name}-FiltroMedia{ext}'.format(name=name,ext=extension))
     #img1 = filtro_gaussiano(copy.deepcopy(img),'{name}-FiltroGaussiano{ext}'.format(name=name,ext=extension))
+    img1 = filtro_mediana(copy.deepcopy(img),'{name}-FiltroMediana{ext}'.format(name=name,ext=extension))
     #img2 = operacoes_aritmeticas_subtracao(copy.deepcopy(img),copy.deepcopy(img1),None)
     cv2.imshow("original",img)
     cv2.imshow("new",img1)
