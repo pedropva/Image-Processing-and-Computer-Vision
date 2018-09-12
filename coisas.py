@@ -729,10 +729,101 @@ def AAPDithering(img,filename):
         cv2.imwrite(filename,img)
     return img
 
+#filtro da média, recebe uma imagem e retorna uma imagem de mesmo tamanho, n é o tamanho do kernel
+def filtro_media(img,n,filename):
+    rows = img.shape[0]
+    cols = img.shape[1]
+    beirada = n//2
+    valor = 0
+
+    i = beirada
+    j = beirada
+    for i in range(rows-beirada):
+        for j in range(cols-beirada):
+            valor = 0
+            for k in range(n):
+                for l in range(n):
+                    valor +=  img[i-beirada + k,j-beirada + l] #somo todos os valores dos pixels nesse kernel
+            img[i,j] = round((valor * 1.0)/n**2) # atribui a média da soma desses pixels ao kernel
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
+
+#filtro da gaussiano, recebe uma imagem e retorna uma imagem de mesmo tamanho com a filtragem gaussiana (passabaixa/desfoque)
+def filtro_gaussiano(img,filename):
+    #fazendo o kernel
+    kernel =[[1,2,1],[2,4,2],[1,2,1]]
+    rows = img.shape[0]
+    cols = img.shape[1]
+    beirada = 3//2 #3 eh o numero delinhas da matriz
+    valor = 0
+    i = beirada
+    j = beirada
+    for i in range(rows-beirada):
+        for j in range(cols-beirada):
+            valor = 0
+            for k in range(3):
+                for l in range(3):
+                    valor +=  img[i-beirada + k,j-beirada + l] * kernel[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels
+                    
+            img[i,j] = round((valor * 1.0)/16)# atribui a média da soma desses pixels ao kernel
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
 
 
 
+#filtro negativo recebe umas imagem e retorna ela negativada
+def filtro_negacao(img,filename):
+    
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+                img[i,j] = 255 - img[i,j];
+    
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
+    
+#filtro contraste recebe umas imagem e retorna ela contrastada
+def filtro_contraste(img,minC,maxC,filename):
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+                img[i,j] = (img[i,j] - np.amin(img))*((maxC - minC)/(np.amax(img) - np.amin(img))) + minC
+    
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
 
+#filtro gama recebe umas imagem e retorna ela com gama mudado
+def filtro_gama(img,c,gama,filename):
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+                aux = (img[i,j]*1.0000000000)/255
+                value = c * (aux)**gama
+                value = value*255
+                if(value > 255):
+                    img[i,j] = 255
+                else:
+                    img[i,j] = value
+                
+    
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
 
 
 
@@ -796,9 +887,19 @@ if __name__ == "__main__":
     #randomDithering(copy.deepcopy(img),'{name}-randomDith{ext}'.format(name=name,ext=extension))
     #AOPDDithering(copy.deepcopy(img),'{name}-AOPDDith{ext}'.format(name=name,ext=extension))
     #AOPADithering(copy.deepcopy(img),'{name}-AOPADith{ext}'.format(name=name,ext=extension))
-    AAPDithering(copy.deepcopy(img),'{name}-AAPADith{ext}'.format(name=name,ext=extension))
-    
-    
+    #AAPDithering(copy.deepcopy(img),'{name}-AAPADith{ext}'.format(name=name,ext=extension))
+    #img1 = filtro_negacao(copy.deepcopy(img),'{name}-Negacao{ext}'.format(name=name,ext=extension))
+    #img1 = filtro_contraste(copy.deepcopy(img),100,255,'{name}-Contraste{ext}'.format(name=name,ext=extension))
+    #img1 = filtro_gama(copy.deepcopy(img),1,0.2,'{name}-Gama{ext}'.format(name=name,ext=extension))
+    #img1 = filtro_media(copy.deepcopy(img),7,'{name}-FiltroMedia{ext}'.format(name=name,ext=extension))
+    #img1 = filtro_gaussiano(copy.deepcopy(img),'{name}-FiltroGaussiano{ext}'.format(name=name,ext=extension))
+    #img2 = operacoes_aritmeticas_subtracao(copy.deepcopy(img),copy.deepcopy(img1),None)
+    cv2.imshow("original",img)
+    cv2.imshow("new",img1)
+    #print("fazendo a diferença...")
+    #cv2.imshow("difference",img2)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
     
     
     
