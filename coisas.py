@@ -797,8 +797,8 @@ def filtro_mediana(img,filename):
 
 
 
-#filtro negativo recebe umas imagem e retorna ela negativada
-def filtro_negacao(img,filename):
+#realce negativo recebe umas imagem e retorna ela negativada
+def realce_negacao(img,filename):
     
     rows = img.shape[0]
     cols = img.shape[1]
@@ -812,8 +812,8 @@ def filtro_negacao(img,filename):
         
     return img
     
-#filtro contraste recebe umas imagem e retorna ela contrastada
-def filtro_contraste(img,minC,maxC,filename):
+#realce contraste recebe umas imagem e retorna ela com um novo range de contraste, indo de minC a maxC
+def realce_contraste(img,minC,maxC,filename):
     rows = img.shape[0]
     cols = img.shape[1]
     
@@ -826,14 +826,16 @@ def filtro_contraste(img,minC,maxC,filename):
         
     return img
 
-#filtro gama recebe umas imagem e retorna ela com gama mudado
-def filtro_gama(img,c,gama,filename):
+#realce gama recebe umas imagem e retorna ela com gama mudado
+#Fator gama γ > 1: comprime as intensidades de preto (regiões escuras),enquanto expande as intensidades claras.
+#Fator gama 0 < γ < 1: operação inversa.
+def realce_gama(img,c,gama,filename):
     rows = img.shape[0]
     cols = img.shape[1]
     
     for i in range(rows):
         for j in range(cols):
-                aux = (img[i,j]*1.0000000000)/255
+                aux = (img[i,j]*1.0)/255
                 value = c * (aux)**gama
                 value = value*255
                 if(value > 255):
@@ -847,14 +849,93 @@ def filtro_gama(img,c,gama,filename):
         
     return img
 
+#realce linear, recebe uma imagem, retorna ela com o contraste maior ou menor, sendo G o ganho desejado e D o fator de incremento
+#Aumenta o contraste da imagem, expandindo o intervalo original de níveis de cinza
+def realce_linear(img,G,D,filename):
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+                value = G*img[i,j] + D
+                if(value > 255):
+                    img[i,j] = 255
+                else:
+                    img[i,j] = value
+                
+    
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
 
+
+#realce logaritmico, recebe uma imagem, retorna ela com o contraste maior ou menor, sendo G o fator definido entre 0 e 255
+#Aumenta o contraste em regiões escuras (valores de cinza baixos). Equivale a uma curva logarítmica.
+def realce_logaritmico(img,filename):
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+                G = 255.0/np.log10(255)
+                value = G*np.log10(img[i,j] + 1)
+                if(value > 255):
+                    img[i,j] = 255
+                else:
+                    img[i,j] = value
+                
+    
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
+
+
+#realce quadratico, recebe uma imagem, retorna ela com o contraste maior ou menor
+#Aumenta o contraste em regiões claras (valores de cinza altos).
+def realce_quadratico(img,filename):
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+                G = 1.0/255
+                value = G*((img[i,j])**2)
+                if(value > 255):
+                    img[i,j] = 255
+                else:
+                    img[i,j] = value
+                
+    
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
+
+#realce da raiz quadrada, recebe uma imagem, retorna ela com o contraste maior ou menor
+#Aumenta o contraste das regiões escuras da imagem original.
+#Difere do logarítmico porque realça um intervalo maior de níveis de cinza baixos.
+def realce_raiz(img,filename):
+    rows = img.shape[0]
+    cols = img.shape[1]
+    
+    for i in range(rows):
+        for j in range(cols):
+                G = 255/np.sqrt(255)
+                img[i,j] = G*(np.sqrt(img[i,j]))
+    
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
 
 
 
 
 if __name__ == "__main__":
     
-    filename = 'lenna.jpg'
+    filename = 'reee.jpg'
     img = cv2.imread(filename,0)
     name, extension = os.path.splitext(filename)
     
@@ -905,24 +986,28 @@ if __name__ == "__main__":
     #bgr to cmy
     #bgrToCmy(copy.deepcopy(img),'{name}-CMY{ext}'.format(name=name,ext=extension))
     #soma_colorida(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SOMA-COLORIDA-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
-    #basicDithering(copy.deepcopy(img),'{name}-basicDith{ext}'.format(name=name,ext=extension))
-    #randomDithering(copy.deepcopy(img),'{name}-randomDith{ext}'.format(name=name,ext=extension))
-    #AOPDDithering(copy.deepcopy(img),'{name}-AOPDDith{ext}'.format(name=name,ext=extension))
-    #AOPADithering(copy.deepcopy(img),'{name}-AOPADith{ext}'.format(name=name,ext=extension))
-    #AAPDithering(copy.deepcopy(img),'{name}-AAPADith{ext}'.format(name=name,ext=extension))
-    #img1 = filtro_negacao(copy.deepcopy(img),'{name}-Negacao{ext}'.format(name=name,ext=extension))
-    #img1 = filtro_contraste(copy.deepcopy(img),100,255,'{name}-Contraste{ext}'.format(name=name,ext=extension))
-    #img1 = filtro_gama(copy.deepcopy(img),1,0.2,'{name}-Gama{ext}'.format(name=name,ext=extension))
+    #img1 = basicDithering(copy.deepcopy(img),'{name}-basicDith{ext}'.format(name=name,ext=extension))
+    #img1 = randomDithering(copy.deepcopy(img),'{name}-randomDith{ext}'.format(name=name,ext=extension))
+    #img1 = AOPDDithering(copy.deepcopy(img),'{name}-AOPDDith{ext}'.format(name=name,ext=extension))
+    #img1 = AOPADithering(copy.deepcopy(img),'{name}-AOPADith{ext}'.format(name=name,ext=extension))
+    #img1 = AAPDithering(copy.deepcopy(img),'{name}-AAPADith{ext}'.format(name=name,ext=extension))
     #img1 = filtro_media(copy.deepcopy(img),7,'{name}-FiltroMedia{ext}'.format(name=name,ext=extension))
     #img1 = filtro_gaussiano(copy.deepcopy(img),'{name}-FiltroGaussiano{ext}'.format(name=name,ext=extension))
-    img1 = filtro_mediana(copy.deepcopy(img),'{name}-FiltroMediana{ext}'.format(name=name,ext=extension))
+    #img1 = filtro_mediana(copy.deepcopy(img),'{name}-FiltroMediana{ext}'.format(name=name,ext=extension))
+    #img1 = realce_negacao(copy.deepcopy(img),'{name}-Negacao{ext}'.format(name=name,ext=extension))
+    img1 = realce_contraste(copy.deepcopy(img),100,255,'{name}-Contraste{ext}'.format(name=name,ext=extension))
+    img1 = realce_gama(copy.deepcopy(img),1,0.2,'{name}-Gama{ext}'.format(name=name,ext=extension))
+    img1 = realce_linear(copy.deepcopy(img),2,0,'{name}-Linear{ext}'.format(name=name,ext=extension))
+    img1 = realce_logaritmico(copy.deepcopy(img),'{name}-Logaritmico{ext}'.format(name=name,ext=extension))
+    img1 = realce_quadratico(copy.deepcopy(img),'{name}-Quadratico{ext}'.format(name=name,ext=extension))
+    #img1 = realce_raiz(copy.deepcopy(img),'{name}-Raiz{ext}'.format(name=name,ext=extension))
     #img2 = operacoes_aritmeticas_subtracao(copy.deepcopy(img),copy.deepcopy(img1),None)
-    cv2.imshow("original",img)
-    cv2.imshow("new",img1)
+    #cv2.imshow("original",img)
+    #cv2.imshow("new",img1)
     #print("fazendo a diferença...")
     #cv2.imshow("difference",img2)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    #cv2.waitKey(0)
+    #cv2.destroyAllWindows()
     
     
     
