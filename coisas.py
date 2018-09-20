@@ -8,6 +8,7 @@ import cv2
 import os,math, copy
 import utils
 import random
+import matplotlib.pyplot as plt
 
 true = 255
 false = 0
@@ -658,7 +659,7 @@ def randomDithering(img,filename):
     return img
 
 #dithering, recebe uma imagem em escala de cinza e retorna uma em preto e branco baseado em Algoritmo Ordenado Periodico com pixels Aglomerados
-def AOPADithering(img,filename):
+def AlgoritmoOrdenadoPeriodicoAglomeradoDithering(img,filename):
     img = np.float32(img)
     ditheringMatrix = [[8,3,4],[6,1,2],[7,5,9]]
     rows = img.shape[0]
@@ -667,7 +668,7 @@ def AOPADithering(img,filename):
     for i in range(rows):
         for j in range(cols):
             temp1 = (img[i,j]* 1.0)/true
-            temp2 = (ditheringMatrix[i%3][j%3]* 1.0)/10
+            temp2 = (ditheringMatrix[i%3][j%3]* 1.0)/9
             if temp1 > temp2 :
                 img[i,j] = true;
             else:
@@ -676,12 +677,12 @@ def AOPADithering(img,filename):
     if filename != None:
         cv2.imwrite(filename,img)
         
-    return img
+    return np.uint8(img)
 
 #dithering, recebe uma imagem em escala de cinza e retorna uma em preto e branco baseado em Algoritmo Ordenado Periodico com pixels Dispersos
-def AOPDDithering(img,filename):
+def AlgoritmoOrdenadoPeriodicoDispersoDithering(img,filename):
     img = np.float32(img)
-    ditheringMatrix = [[2,3],[3,1]]
+    ditheringMatrix = [[2,3],[4,1]]
     rows = img.shape[0]
     cols = img.shape[1]
     
@@ -697,15 +698,15 @@ def AOPDDithering(img,filename):
     if filename != None:
         cv2.imwrite(filename,img)
         
-    return img
+    return np.uint8(img)
 
 #dithering, recebe uma imagem em escala de cinza e retorna uma em preto e branco baseado em Algoritmo aperiódico (Floyd-Steinberg).
-def AAPDithering(img,filename):
+def AlgoritmoAperiodicoDithering(img,filename):
     img = np.float32(img)
     
     rows = img.shape[0]
     cols = img.shape[1]
-    copy = 0;
+    copy = 0
     for i in range(rows):
         for j in range(cols):
             copy = img[i,j]
@@ -724,10 +725,9 @@ def AAPDithering(img,filename):
                 img[i,j+1] = img[i,j+1] + erro * 5.0/16    
             if(i-1 > 0 and j+1 < cols):
                 img[i-1,j+1] = img[i-1,j+1] + erro * 3.0/16
-            
     if filename != None:
         cv2.imwrite(filename,img)
-    return img
+    return np.uint8(img)
 
 #filtro da média, recebe uma imagem e retorna uma imagem de mesmo tamanho, n é o tamanho do kernel
 def filtro_media(img,n,filename):
@@ -931,6 +931,182 @@ def realce_raiz(img,filename):
     return img
 
 
+#histograma basico    
+def histograma(img):
+    rows = img.shape[0]
+    cols = img.shape[1]
+    valores = [0] * 256
+    for i in range(rows):
+        for j in range(cols):
+                valores[img[i,j]] += 1          
+        
+    return valores
+
+#acumula os valores do histograma
+def histograma_cumulativo(valores):
+    rows = img.shape[0]
+    cols = img.shape[1]
+    valores = [0] * 256
+    for i in range(rows):
+        for j in range(cols):
+                valores[img[i,j]] += 1          
+        
+    for i in range(1,256):
+                valores[i] += valores[i-1]
+        
+    return valores
+
+#equalização do histograma
+def histograma_equalizado(img,filename):
+    newImg = copy.deepcopy(img)
+    rows = img.shape[0]
+    cols = img.shape[1]
+    fator = 255.0/ (rows * cols)
+    valores = [0] * 256 #lista com os valores do histograma equalizado
+    for i in range(rows):
+        for j in range(cols):
+                valores[img[i,j]] += 1          
+                
+    #faz o histograma cumulativo
+    for i in range(1,256):
+                valores[i] += valores[i-1]                
+                
+    #multiplica o resultado pelo fator
+    for i in range(1,256):
+                valores[i] = round(valores[i]*1.0*fator)            
+                
+    #mapeia o histograma equalizado pra imagem
+    for i in range(rows):
+        for j in range(cols):
+            newImg[i,j] = valores[img[i,j]]
+    
+    if filename != None:
+        cv2.imwrite(filename,newImg) 
+    
+    return histograma(newImg) #retorna ohistograma da nova imagem equalizada
+    
+#histograma alongado
+def histograma_alongado(img,plow,phigh,filename):
+    rows = img.shape[0]
+    cols = img.shape[1]
+    newImg = copy.deepcopy(img)
+    for i in range(rows):
+        for j in range(cols):
+            if(img[i,j] <= plow):
+                newImg[i,j]= 0
+            elif(img[i,j] >= phigh):
+                newImg[i,j] = 255
+            else:
+                newImg[i,j] = round(255 * (img[i,j] - plow)/(phigh - plow))
+            
+    if filename != None:
+        cv2.imwrite(filename,newImg)
+        
+    return newImg
+
+    
+#histograma especificado
+def histograma_especificado(img,img2,filename):
+    newImg = copy.deepcopy(img)
+    histEq1 = histograma_equalizado(img,None)
+    histEq2 = histograma_equalizado(img2,None)
+    histEspecificado = []
+    menor_indice = 0
+    for i in range(len(histEq1)):
+        for j in range(len(histEq2)):
+            if abs(histEq1[i] - histEq2[j]) < abs(histEq1[i]-histEq1[menor_indice]):
+                menor_indice = j
+        histEspecificado.append(menor_indice)
+        menor_indice = 0
+    for i in range(256):
+        for j in range(256):
+            newImg[i,j] = histEspecificado[img[i,j]]
+            
+    if filename != None:
+        cv2.imwrite(filename,newImg)
+        
+    return histograma(newImg)
+
+
+#detecção de pontos isolados
+def deteccao_pontos(img,limiar,filename):
+    #fazendo o kernel
+    kernel =[[-1,-1,-1],[-1,8,-1],[-1,-1,-1]]
+    rows = img.shape[0]
+    cols = img.shape[1]
+    beirada = 3//2 #3 eh o numero delinhas da matriz
+    valor = 0
+    i = beirada
+    j = beirada
+    for i in range(rows-beirada):
+        for j in range(cols-beirada):
+            valor = 0
+            for k in range(3):
+                for l in range(3):
+                    valor +=  img[i-beirada + k,j-beirada + l] * kernel[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels
+                    
+            img[i,j] = valor# atribui a média da soma desses pixels ao kernel
+            
+    for i in range(rows):
+        for j in range(cols):
+            if img[i,j] <= limiar:
+                img[i,j] = 0
+            else: 
+                img[i,j] = 255
+            
+            
+            
+    if filename != None:
+        cv2.imwrite(filename,img)
+        
+    return img
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 if __name__ == "__main__":
@@ -986,87 +1162,46 @@ if __name__ == "__main__":
     #bgr to cmy
     #bgrToCmy(copy.deepcopy(img),'{name}-CMY{ext}'.format(name=name,ext=extension))
     #soma_colorida(copy.deepcopy(img),copy.deepcopy(img2),'{name}-SOMA-COLORIDA-{name2}{ext}'.format(name=name,name2=name2,ext=extension))
-    #img1 = basicDithering(copy.deepcopy(img),'{name}-basicDith{ext}'.format(name=name,ext=extension))
-    #img1 = randomDithering(copy.deepcopy(img),'{name}-randomDith{ext}'.format(name=name,ext=extension))
-    #img1 = AOPDDithering(copy.deepcopy(img),'{name}-AOPDDith{ext}'.format(name=name,ext=extension))
-    #img1 = AOPADithering(copy.deepcopy(img),'{name}-AOPADith{ext}'.format(name=name,ext=extension))
-    #img1 = AAPDithering(copy.deepcopy(img),'{name}-AAPADith{ext}'.format(name=name,ext=extension))
-    #img1 = filtro_media(copy.deepcopy(img),7,'{name}-FiltroMedia{ext}'.format(name=name,ext=extension))
-    #img1 = filtro_gaussiano(copy.deepcopy(img),'{name}-FiltroGaussiano{ext}'.format(name=name,ext=extension))
-    #img1 = filtro_mediana(copy.deepcopy(img),'{name}-FiltroMediana{ext}'.format(name=name,ext=extension))
-    #img1 = realce_negacao(copy.deepcopy(img),'{name}-Negacao{ext}'.format(name=name,ext=extension))
-    img1 = realce_contraste(copy.deepcopy(img),100,255,'{name}-Contraste{ext}'.format(name=name,ext=extension))
-    img1 = realce_gama(copy.deepcopy(img),1,0.2,'{name}-Gama{ext}'.format(name=name,ext=extension))
-    img1 = realce_linear(copy.deepcopy(img),2,0,'{name}-Linear{ext}'.format(name=name,ext=extension))
-    img1 = realce_logaritmico(copy.deepcopy(img),'{name}-Logaritmico{ext}'.format(name=name,ext=extension))
-    img1 = realce_quadratico(copy.deepcopy(img),'{name}-Quadratico{ext}'.format(name=name,ext=extension))
-    #img1 = realce_raiz(copy.deepcopy(img),'{name}-Raiz{ext}'.format(name=name,ext=extension))
-    #img2 = operacoes_aritmeticas_subtracao(copy.deepcopy(img),copy.deepcopy(img1),None)
+    #basicDithering(copy.deepcopy(img),'{name}-basicDith{ext}'.format(name=name,ext=extension))
+    #randomDithering(copy.deepcopy(img),'{name}-randomDith{ext}'.format(name=name,ext=extension))
+    #AlgoritmoOrdenadoPeriodicoDispersoDithering(copy.deepcopy(img),'{name}-AOPDDith{ext}'.format(name=name,ext=extension))
+    #AlgoritmoOrdenadoPeriodicoAglomeradoDithering(copy.deepcopy(img),'{name}-AOPADith{ext}'.format(name=name,ext=extension))
+    #AlgoritmoAperiodicoDithering(copy.deepcopy(img),'{name}-AAPADith{ext}'.format(name=name,ext=extension))
+    #filtro_media(copy.deepcopy(img),7,'{name}-FiltroMedia{ext}'.format(name=name,ext=extension))
+    #filtro_gaussiano(copy.deepcopy(img),'{name}-FiltroGaussiano{ext}'.format(name=name,ext=extension))
+    #filtro_mediana(copy.deepcopy(img),'{name}-FiltroMediana{ext}'.format(name=name,ext=extension))
+    #realce_negacao(copy.deepcopy(img),'{name}-Negacao{ext}'.format(name=name,ext=extension))
+    #realce_contraste(copy.deepcopy(img),100,255,'{name}-Contraste{ext}'.format(name=name,ext=extension))
+    #realce_gama(copy.deepcopy(img),1,0.2,'{name}-Gama{ext}'.format(name=name,ext=extension))
+    #realce_linear(copy.deepcopy(img),2,0,'{name}-Linear{ext}'.format(name=name,ext=extension))
+    #realce_logaritmico(copy.deepcopy(img),'{name}-Logaritmico{ext}'.format(name=name,ext=extension))
+    #realce_quadratico(copy.deepcopy(img),'{name}-Quadratico{ext}'.format(name=name,ext=extension))
+    #realce_raiz(copy.deepcopy(img),'{name}-Raiz{ext}'.format(name=name,ext=extension))
+    #deteccao_pontos(copy.deepcopy(img),250,'{name}-DeteccaoPontos{ext}'.format(name=name,ext=extension))
+    
+    #para mostrar os resultados das operacoes usando janelas do opencv (nao mto confiavel, as vezes fica errado na janela mas certo em arquivo)
+    
     #cv2.imshow("original",img)
     #cv2.imshow("new",img1)
     #print("fazendo a diferença...")
+    #img2 = operacoes_aritmeticas_subtracao(copy.deepcopy(img),copy.deepcopy(imgR1),None)
     #cv2.imshow("difference",img2)
     #cv2.waitKey(0)
     #cv2.destroyAllWindows()
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    #atividade de histogramas
+    x = [] 
+    for i in range(0,256):
+        x.append(i)
+        
+    hist = histograma(copy.deepcopy(img))
+    #hist = histograma_cumulativo(copy.deepcopy(img))
+    #hist = histograma_equalizado(copy.deepcopy(img),'{name}-Equalizado{ext}'.format(name=name,ext=extension))
+    histograma_alongado(copy.deepcopy(img),50,250,'{name}-Alongado{ext}'.format(name=name,ext=extension))
+    #histograma_especificado(copy.deepcopy(img),copy.deepcopy(img2),'{name}-Especificado{ext}'.format(name=name,ext=extension))
+    plt.bar(x,hist,1)
+    plt.ylabel('Pixels');
     
     
     
