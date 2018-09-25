@@ -10,6 +10,7 @@ import utils
 import random
 
 
+
 #detecção de pontos isolados
 def pontos(img,limiar,filename):
     #fazendo o kernel
@@ -18,27 +19,214 @@ def pontos(img,limiar,filename):
     cols = img.shape[1]
     beirada = 3//2 #3 eh o numero delinhas da matriz
     valor = 0
-    i = beirada
-    j = beirada
-    for i in range(rows-beirada):
-        for j in range(cols-beirada):
+    newImg = np.zeros((rows,cols))
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
             valor = 0
             for k in range(3):
                 for l in range(3):
                     valor +=  img[i-beirada + k,j-beirada + l] * kernel[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels
-                    
-            img[i,j] = valor# atribui a média da soma desses pixels ao kernel
             
-    for i in range(rows):
-        for j in range(cols):
-            if img[i,j] <= limiar:
-                img[i,j] = 0
+            if valor <= limiar:
+                newImg[i,j] = 0
             else: 
-                img[i,j] = 255
-            
-            
+                newImg[i,j] = 255      
             
     if filename != None:
-        cv2.imwrite(filename,img)
+        cv2.imwrite(filename,newImg)
         
-    return img
+    return newImg
+
+#detecção de retas
+def retas(img,angulo,limiar,filename):
+    #fazendo o kernel
+    if angulo == 0:
+        kernel =[[-1,-1,-1],[2,2,2],[-1,-1,-1]]    
+    elif angulo == 45:
+        kernel =[[-1,-1,2],[-1,2,-1],[2,-1,-1]]    
+    elif angulo == 90:
+        kernel =[[-1,2,-1],[-1,2,-1],[-1,2,-1]]    
+    elif angulo == -45:
+        kernel =[[2,-1,-1],[-1,2,-1],[-1,-1,2]]    
+    else:
+        kernel =[[-1,-1,-1],[2,2,2],[-1,-1,-1]]    
+
+    rows = img.shape[0]
+    cols = img.shape[1]
+    beirada = 3//2 #3 eh o numero delinhas da matriz
+    valor = 0
+    newImg = np.zeros((rows,cols))
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
+            valor = 0
+            for k in range(3):
+                for l in range(3):
+                    valor +=  img[i-beirada + k,j-beirada + l] * kernel[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
+            if valor <= limiar:
+                newImg[i,j] = 0
+            else: 
+                newImg[i,j] = 255      
+            
+    if filename != None:
+        cv2.imwrite(filename,newImg)
+        
+    return newImg
+
+#detecção de bordas roberts
+def roberts(img,limiar,filename):
+    #fazendo o kernel
+    kernelX =[[1,0],[0,-1]]
+    kernelY =[[0,-1],[1,0]]
+
+    rows = img.shape[0]
+    cols = img.shape[1]
+    beirada = 2//2 #2 eh o numero de linhas da matriz
+    valorx = 0
+    valorxy = 0
+    imgX = np.zeros((rows,cols))
+    imgXY = np.zeros((rows,cols))
+
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
+            valorx = 0
+            for k in range(3):
+                for l in range(3):
+                    valorx +=  img[i-beirada + k,j-beirada + l] * kernelX[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
+            imgX[i,j] = valorx
+    #fim das convolucoes no eixo x, agora usa a saida disso pra fazer as convolucoes em y
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
+            valorxy = 0
+            for k in range(3):
+                for l in range(3):
+                    valorxy +=  imgX[i-beirada + k,j-beirada + l] * kernelY[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
+            #o valor xy ja eh o resultado as convolucoes em x e y
+            if valorxy <= limiar:
+                imgXY[i,j] = 0
+            else: 
+                imgXY[i,j] = 255      
+            
+    if filename != None:
+        cv2.imwrite(filename,imgXY)
+        
+    return imgXY
+
+
+#detecção de bordas prewitt
+def prewitt(img,limiar,filename):
+    #fazendo o kernel
+    kernelX = [[-1,-1,-1],[0,0,0],[1,1,1]]  
+    kernelY =[[-1,0,1],[-1,0,1],[-1,0,1]]  
+
+    rows = img.shape[0]
+    cols = img.shape[1]
+    beirada = 3//2 #3 eh o numero de linhas da matriz
+    valorx = 0
+    valorxy = 0
+    imgX = np.zeros((rows,cols))
+    imgXY = np.zeros((rows,cols))
+
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
+            valorx = 0
+            for k in range(3):
+                for l in range(3):
+                    valorx +=  img[i-beirada + k,j-beirada + l] * kernelX[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
+            imgX[i,j] = valorx
+    #fim das convolucoes no eixo x, agora usa a saida disso pra fazer as convolucoes em y
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
+            valorxy = 0
+            for k in range(3):
+                for l in range(3):
+                    valorxy +=  imgX[i-beirada + k,j-beirada + l] * kernelY[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
+            #o valor xy ja eh o resultado as convolucoes em x e y
+            if valorxy <= limiar:
+                imgXY[i,j] = 0
+            else: 
+                imgXY[i,j] = 255      
+            
+    if filename != None:
+        cv2.imwrite(filename,imgXY)
+        
+    return imgXY
+
+
+#detecção de bordas sobel
+def sobel(img,limiar,filename):
+    #fazendo o kernel
+    kernelX = [[-1,0,1],[-2,0,2],[-1,0,1]]  
+    kernelY =[[-1,-2,-1],[0,0,0],[1,2,1]]  
+
+    rows = img.shape[0]
+    cols = img.shape[1]
+    beirada = 3//2 #3 eh o numero de linhas da matriz
+    valorx = 0
+    valorxy = 0
+    imgX = np.zeros((rows,cols))
+    imgXY = np.zeros((rows,cols))
+
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
+            valorx = 0
+            for k in range(3):
+                for l in range(3):
+                    valorx +=  img[i-beirada + k,j-beirada + l] * kernelX[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
+            imgX[i,j] = valorx
+    #fim das convolucoes no eixo x, agora usa a saida disso pra fazer as convolucoes em y
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
+            valorxy = 0
+            for k in range(3):
+                for l in range(3):
+                    valorxy +=  imgX[i-beirada + k,j-beirada + l] * kernelY[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
+            #o valor xy ja eh o resultado as convolucoes em x e y
+            if valorxy <= limiar:
+                imgXY[i,j] = 0
+            else: 
+                imgXY[i,j] = 255      
+            
+    if filename != None:
+        cv2.imwrite(filename,imgXY)
+        
+    return imgXY
+
+
+#detecção de bordas laplaciano
+def laplaciano(img,limiar,filename):
+    #fazendo o kernel
+    kernelX = [[0,1,0],[1,-4,1],[0,1,0]]  
+    kernelY =[[2,-1,2],[-1,-4,-1],[2,-1,2]]  
+
+    rows = img.shape[0]
+    cols = img.shape[1]
+    beirada = 3//2 #3 eh o numero de linhas da matriz
+    valorx = 0
+    valorxy = 0
+    imgX = np.zeros((rows,cols))
+    imgXY = np.zeros((rows,cols))
+
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
+            valorx = 0
+            for k in range(3):
+                for l in range(3):
+                    valorx +=  img[i-beirada + k,j-beirada + l] * kernelX[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
+            imgX[i,j] = valorx
+    #fim das convolucoes no eixo x, agora usa a saida disso pra fazer as convolucoes em y
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
+            valorxy = 0
+            for k in range(3):
+                for l in range(3):
+                    valorxy +=  imgX[i-beirada + k,j-beirada + l] * kernelY[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
+            #o valor xy ja eh o resultado as convolucoes em x e y
+            if valorxy <= limiar:
+                imgXY[i,j] = 0
+            else: 
+                imgXY[i,j] = 255      
+            
+    if filename != None:
+        cv2.imwrite(filename,imgXY)
+        
+    return imgXY

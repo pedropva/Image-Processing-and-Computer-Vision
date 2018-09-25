@@ -17,10 +17,8 @@ def media(img,n,filename):
     beirada = n//2
     valor = 0
 
-    i = beirada
-    j = beirada
-    for i in range(rows-beirada):
-        for j in range(cols-beirada):
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
             valor = 0
             for k in range(n):
                 for l in range(n):
@@ -41,8 +39,8 @@ def gaussiano(img,filename):
     valor = 0
     i = beirada
     j = beirada
-    for i in range(rows-beirada):
-        for j in range(cols-beirada):
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
             valor = 0
             for k in range(3):
                 for l in range(3):
@@ -62,8 +60,8 @@ def mediana(img,filename):
     i = beirada
     j = beirada
     
-    for i in range(rows-beirada):
-        for j in range(cols-beirada):
+    for i in range(beirada,rows-beirada):
+        for j in range(beirada,cols-beirada):
             vizinhos = [] #variavel que guarda a lista dos pixels da janela equivalente na imagem
             for k in range(3):
                 for l in range(3):
