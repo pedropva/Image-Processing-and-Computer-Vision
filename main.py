@@ -107,9 +107,9 @@ plt.show()
 """
 
 #Atividade de deteccao de descontinuidades
-deteccaoDescontinuidades.pontos(copy.deepcopy(img),200,'./resultados/{name}-DeteccaoPontos{ext}'.format(name=name,ext=extension))
-#angulo = 0
-#deteccaoDescontinuidades.retas(copy.deepcopy(img),angulo,200,'./resultados/{name}-DeteccaoRetas{angulo}{ext}'.format(name=name,angulo=angulo,ext=extension))
+#deteccaoDescontinuidades.pontos(copy.deepcopy(img),200,'./resultados/{name}-DeteccaoPontos{ext}'.format(name=name,ext=extension))
+angulo = 0
+deteccaoDescontinuidades.retas(copy.deepcopy(img),angulo,200,'./resultados/{name}-DeteccaoRetas{angulo}{ext}'.format(name=name,angulo=angulo,ext=extension))
 #angulo = 45
 #deteccaoDescontinuidades.retas(copy.deepcopy(img),angulo,200,'./resultados/{name}-DeteccaoRetas{angulo}{ext}'.format(name=name,angulo=angulo,ext=extension))
 #angulo = 90
@@ -117,10 +117,10 @@ deteccaoDescontinuidades.pontos(copy.deepcopy(img),200,'./resultados/{name}-Dete
 #angulo = -45
 #deteccaoDescontinuidades.retas(copy.deepcopy(img),angulo,200,'./resultados/{name}-DeteccaoRetas{angulo}{ext}'.format(name=name,angulo=angulo,ext=extension))
 
-deteccaoDescontinuidades.roberts(copy.deepcopy(img),200,'./resultados/{name}-DeteccaoRoberts{ext}'.format(name=name,ext=extension))
-deteccaoDescontinuidades.prewitt(copy.deepcopy(img),200,'./resultados/{name}-DeteccaoPrewitt{ext}'.format(name=name,ext=extension))
-deteccaoDescontinuidades.sobel(copy.deepcopy(img),200,'./resultados/{name}-DeteccaoSobel{ext}'.format(name=name,ext=extension))
-deteccaoDescontinuidades.laplaciano(copy.deepcopy(img),200,'./resultados/{name}-DeteccaoLaplaciano{ext}'.format(name=name,ext=extension))
+#deteccaoDescontinuidades.roberts(copy.deepcopy(img),200,'./resultados/{name}-DeteccaoRoberts{ext}'.format(name=name,ext=extension))
+#deteccaoDescontinuidades.prewitt(copy.deepcopy(img),200,'./resultados/{name}-DeteccaoPrewitt{ext}'.format(name=name,ext=extension))
+#deteccaoDescontinuidades.sobel(copy.deepcopy(img),200,'./resultados/{name}-DeteccaoSobel{ext}'.format(name=name,ext=extension))
+#deteccaoDescontinuidades.laplaciano(copy.deepcopy(img),200,'./resultados/{name}-DeteccaoLaplaciano{ext}'.format(name=name,ext=extension))
 
 
 #para mostrar os resultados das operacoes usando janelas do opencv (nao mto confiavel, as vezes fica errado na janela mas certo em arquivo)
