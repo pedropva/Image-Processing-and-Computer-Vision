@@ -62,7 +62,7 @@ def retas(img,angulo,limiar,filename):
             for k in range(3):
                 for l in range(3):
                     valor +=  img[i-beirada + k,j-beirada + l] * kernel[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
-            if valor <= limiar:
+            if abs(valor) <= limiar:
                 newImg[i,j] = 0
             else: 
                 newImg[i,j] = 255      
@@ -90,7 +90,7 @@ def roberts(img,limiar,filename):
             valor = 0
             for k in range(2):
                 for l in range(2):
-                    valor +=  abs(img[i-beirada + k,j-beirada + l] * kernelX[k][l]) #multiplico os valores do kernel pela janela equivalente dos pixels            
+                    valor +=  img[i-beirada + k,j-beirada + l] * kernelX[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
             imgX[i,j] = valor
     #fim das convolucoes no eixo x, agora usa a saida disso pra fazer as convolucoes em y
     for i in range(beirada,rows-beirada):
@@ -98,9 +98,9 @@ def roberts(img,limiar,filename):
             valor = 0
             for k in range(2):
                 for l in range(2):
-                    valor +=  abs(img[i-beirada + k,j-beirada + l] * kernelY[k][l]) #multiplico os valores do kernel pela janela equivalente dos pixels            
+                    valor +=  img[i-beirada + k,j-beirada + l] * kernelY[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
             #valor guarda convolução nesse pixel em y e imgX guarda o dado desse pixel na convolução em X
-            if valor + imgX[i,j] <= limiar:
+            if abs(valor) + abs(imgX[i,j]) <= limiar:
                 imgResult[i,j] = 0
             else: 
                 imgResult[i,j] = 255      
@@ -129,7 +129,7 @@ def prewitt(img,limiar,filename):
             valor = 0
             for k in range(3):
                 for l in range(3):
-                    valor +=  abs(img[i-beirada + k,j-beirada + l] * kernelX[k][l]) #multiplico os valores do kernel pela janela equivalente dos pixels            
+                    valor +=  img[i-beirada + k,j-beirada + l] * kernelX[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
             imgX[i,j] = valor
     #fim das convolucoes no eixo x, agora usa a saida disso pra fazer as convolucoes em y
     for i in range(beirada,rows-beirada):
@@ -137,9 +137,9 @@ def prewitt(img,limiar,filename):
             valor = 0
             for k in range(3):
                 for l in range(3):
-                    valor +=  abs(img[i-beirada + k,j-beirada + l] * kernelY[k][l]) #multiplico os valores do kernel pela janela equivalente dos pixels            
+                    valor +=  img[i-beirada + k,j-beirada + l] * kernelY[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
             #valor guarda convolução nesse pixel em y e imgX guarda o dado desse pixel na convolução em X
-            if valor + imgX[i,j] <= limiar:
+            if abs(valor) + abs(imgX[i,j]) <= limiar:
                 imgResult[i,j] = 0
             else: 
                 imgResult[i,j] = 255      
@@ -168,7 +168,7 @@ def sobel(img,limiar,filename):
             valor = 0
             for k in range(3):
                 for l in range(3):
-                    valor +=  abs(img[i-beirada + k,j-beirada + l] * kernelX[k][l]) #multiplico os valores do kernel pela janela equivalente dos pixels            
+                    valor +=  img[i-beirada + k,j-beirada + l] * kernelX[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
             imgX[i,j] = valor
     #fim das convolucoes no eixo x, agora usa a saida disso pra fazer as convolucoes em y
     for i in range(beirada,rows-beirada):
@@ -176,9 +176,9 @@ def sobel(img,limiar,filename):
             valor = 0
             for k in range(3):
                 for l in range(3):
-                    valor +=  abs(img[i-beirada + k,j-beirada + l] * kernelY[k][l]) #multiplico os valores do kernel pela janela equivalente dos pixels            
+                    valor +=  img[i-beirada + k,j-beirada + l] * kernelY[k][l #multiplico os valores do kernel pela janela equivalente dos pixels            
             #valor guarda convolução nesse pixel em y e imgX guarda o dado desse pixel na convolução em X
-            if valor + imgX[i,j] <= limiar:
+            if abs(valor) + abs(imgX[i,j]) <= limiar:
                 imgResult[i,j] = 0
             else: 
                 imgResult[i,j] = 255      
@@ -206,7 +206,7 @@ def laplaciano(img,limiar,filename):
             valor = 0
             for k in range(3):
                 for l in range(3):
-                    valor +=  abs(img[i-beirada + k,j-beirada + l] * kernelX[k][l]) #multiplico os valores do kernel pela janela equivalente dos pixels            
+                    valor +=  img[i-beirada + k,j-beirada + l] * kernelX[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
             imgX[i,j] = valor
     #fim das convolucoes no eixo x, agora usa a saida disso pra fazer as convolucoes em y
     for i in range(beirada,rows-beirada):
@@ -214,9 +214,9 @@ def laplaciano(img,limiar,filename):
             valor = 0
             for k in range(3):
                 for l in range(3):
-                    valor +=  abs(img[i-beirada + k,j-beirada + l] * kernelY[k][l]) #multiplico os valores do kernel pela janela equivalente dos pixels            
+                    valor +=  img[i-beirada + k,j-beirada + l] * kernelY[k][l] #multiplico os valores do kernel pela janela equivalente dos pixels            
             #valor guarda convolução nesse pixel em y e imgX guarda o dado desse pixel na convolução em X
-            if valor + imgX[i,j] <= limiar:
+            if abs(valor) + abs(imgX[i,j]) <= limiar:
                 imgResult[i,j] = 0
             else: 
                 imgResult[i,j] = 255      
